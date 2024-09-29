@@ -58,7 +58,18 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 	}
 });
 
-// Get image
+// Get images
+app.get('/get-images', async (req, res) => {
+	try {
+		const result = await pool.query('SELECT id, name FROM images');
+		res.status(200).json(result.rows);
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ error: 'Failed to retrieve images.' });
+	}
+});
+
+// Fetch image
 app.get('/image/:id', async (req, res) => {
 	const { id } = req.params;
 

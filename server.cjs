@@ -42,6 +42,26 @@ app.get('/postgres', async (req, res) => {
 	}
 });
 
+// Endpoint to upload an image
+app.post('/upload', upload.single('image'), async (req, res) => {
+	const { originalname } = req.file; // Get original file name
+	const imageData = req.file.buffer; // Get image data from buffer
+
+	try {
+		// Insert image into PostgreSQL
+		const result = await pool.query(
+			'INSERT INTO images (name, image_data) VALUES ($1, $2) RETURNING id',
+			[originalname, imageData]
+		);
+		res
+			.status(201)
+			.json({ message: 'Image uploaded successfully!', id: result.rows[0].id });
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ error: 'Failed to upload image.' });
+	}
+});
+
 app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`);
 });

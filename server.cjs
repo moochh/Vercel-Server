@@ -5,6 +5,11 @@ const app = express();
 const port = process.env.PORT || 3000;
 const { Pool } = require('pg');
 const cors = require('cors');
+const multer = require('multer');
+const fs = require('fs');
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 const pool = new Pool({
 	user: process.env.POSTGRES_USER,
@@ -23,16 +28,7 @@ app.get('/', (req, res) => {
 	res.send('Hello World!');
 });
 
-app.get('/users', (req, res) => {
-	const users = [
-		{ id: 1, name: 'John' },
-		{ id: 2, name: 'Jane' },
-		{ id: 3, name: 'Joe' }
-	];
-	res.json(users);
-});
-
-app.get('/postgres', async (req, res) => {
+app.get('/users', async (req, res) => {
 	try {
 		const result = await pool.query('SELECT * FROM users');
 		res.status(200).json(result.rows);

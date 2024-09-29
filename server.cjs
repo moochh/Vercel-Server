@@ -58,6 +58,29 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 	}
 });
 
+// Get image
+app.get('/image/:id', async (req, res) => {
+	const { id } = req.params;
+
+	try {
+		const result = await pool.query(
+			'SELECT name, image_data FROM images WHERE id = $1',
+			[id]
+		);
+		if (result.rows.length === 0) {
+			return res.status(404).json({ error: 'Image not found.' });
+		}
+
+		const { name, image_data } = result.rows[0];
+		res.setHeader('Content-Type', 'image/jpeg'); // Set appropriate content type
+		res.setHeader('Content-Disposition', `attachment; filename="${name}"`); // Suggest a filename
+		res.send(image_data);
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ error: 'Failed to retrieve image.' });
+	}
+});
+
 app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`);
 });
